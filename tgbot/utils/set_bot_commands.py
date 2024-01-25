@@ -6,6 +6,7 @@ async def set_commands(bot: Bot):
     commands_list = [
         ["start", "Launch the bot"],
         ["help", "Help"],
+        ["form", "Form"],
     ]
     commands = [
         BotCommand(
