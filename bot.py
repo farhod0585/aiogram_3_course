@@ -6,10 +6,10 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
-from icecream import ic
+
+from checkWord import checkWord
 
 TOKEN = '1764547518:AAHvEJz9nGEeBIzPmvXpcqmmGrkKI5E_vmg'
-from oxfordLookup import getDefinitions
 from googletrans import Translator
 
 translator = Translator()
@@ -17,35 +17,28 @@ translator = Translator()
 dp = Dispatcher()
 
 
-@dp.message(CommandStart(), Command('help'))
+@dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    """
-        This handler will be called when user sends `/start` or `/help` command
-        """
-    await message.reply("Hi!\nI'm EchoBot!\nPowered by aiogram.")
+    await message.reply("uz_imlo Botiga Xush Kelibsiz!")
+
+
+@dp.message(Command('help'))
+async def command_start_handler(message: Message) -> None:
+    await message.reply("Botdan foydalanish uchun so'z yuboring.")
 
 
 @dp.message()
 async def echo_handler(message: types.Message) -> None:
     try:
-        ic(message)
-        lang = translator.detect(message.text).lang
-        if len(message.text.split()) > 2:
-            dest = 'uz' if lang == 'en' else 'en'
-            await message.reply(translator.translate(message.text, dest).text)
+        word = message.text
+        result = checkWord(word)
+        if result['available']:
+            response = f"✅ {word.capitalize()}"
         else:
-            if lang == 'en':
-                word_id = message.text
-            else:
-                word_id = translator.translate(message.text, dest='en').text
-
-            lookup = getDefinitions(word_id)
-            if lookup:
-                await message.reply(f"Word: {word_id} \nDefinitions:\n{lookup['definitions']}")
-                if lookup.get('audio'):
-                    await message.reply_voice(lookup['audio'])
-            else:
-                await message.reply("Bunday so'z topilmadi")
+            response = f"❌{word.capitalize()}\n"
+            for text in result['matches']:
+                response += f"✅ {text.capitalize()}\n"
+        await message.answer(response)
     except:
         await message.answer("Xatolik yuz berdi")
 
